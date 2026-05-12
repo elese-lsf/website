@@ -444,7 +444,7 @@
     </div>
   </section>
 
-  <section id="contacto">
+<section id="contacto">
     <div class="section-inner">
       <div class="contact-layout">
         <div class="contact-info">
@@ -485,7 +485,7 @@
             </select>
           </div>
           <div class="form-group"><label>Contanos más</label><textarea id="f-mensaje" placeholder="Describí brevemente tu desafío o proyecto..."></textarea></div>
-          <button class="form-submit" id="form-btn" onclick="handleSubmit(event)">Enviar mensaje →</button>
+          <button class="form-submit" id="form-btn" type="button" onclick="handleSubmit(event)">Enviar mensaje →</button>
           <p id="form-status" style="display:none; margin-top:0.8rem; font-size:0.85rem; text-align:center;"></p>
         </div>
       </div>
@@ -520,7 +520,7 @@
     });
 
     async function handleSubmit(e) {
-      e.preventDefault();
+      if (e && e.preventDefault) e.preventDefault();
       const nombre  = document.getElementById('f-nombre').value.trim();
       const empresa = document.getElementById('f-empresa').value.trim();
       const email   = document.getElementById('f-email').value.trim();
@@ -534,12 +534,14 @@
       }
       btn.disabled = true; btn.textContent = 'Enviando...'; btn.style.opacity = '0.7'; status.style.display = 'none';
       const WEBHOOK = 'https://eoeqhg33lx7vdxu.m.pipedream.net';
+      console.log('Enviando a Pipedream:', { nombre, empresa, email, servicio, mensaje });
       try {
-        await fetch(WEBHOOK, {
+        const res = await fetch(WEBHOOK, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nombre, empresa, email, servicio, mensaje })
         });
+        console.log('Respuesta Pipedream:', res.status);
         btn.textContent = '✓ Mensaje enviado'; btn.style.opacity = '1';
         btn.style.background = 'linear-gradient(135deg,#2ecc71,#27ae60)'; btn.style.boxShadow = '0 0 30px rgba(46,204,113,0.4)';
         status.style.display = 'block'; status.style.color = '#2ecc71';
@@ -548,6 +550,7 @@
         document.getElementById('f-servicio').selectedIndex = 0;
         setTimeout(() => { btn.textContent = 'Enviar mensaje →'; btn.style.background = ''; btn.style.boxShadow = ''; btn.disabled = false; status.style.display = 'none'; }, 5000);
       } catch(err) {
+        console.error('Error en fetch a Pipedream:', err);
         btn.textContent = 'Enviar mensaje →'; btn.style.opacity = '1'; btn.disabled = false;
         status.style.display = 'block'; status.style.color = '#ff6b6b';
         status.textContent = 'Hubo un error. Escribinos a sales@theelabs.tech';
